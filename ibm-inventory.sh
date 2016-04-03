@@ -153,7 +153,7 @@ function collectDB2() { # Module - DB2
 	grep "db2ls" $repositoryFilename > $repositorySwapFilename
 	
 	while read repositoryLine; do
-		echo "$repositoryLine"
+		$repositoryLine
 	done < $repositorySwapFilename
 }
 
