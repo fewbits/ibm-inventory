@@ -53,11 +53,11 @@ function logError() {
 }
 
 function repositoryCreate() { # Creates a repository file with the software sources
-	logInfo repository "Creating the source repository..."
+	logInfo "repository" "Creating the source repository..."
 
 	## Creating empty files
-	#inventoryFile="$serverHostname-`date +%Y%m%d%H%M%S`"
-	repositoryFilename=repository.txt
+	#repositoryFilename="$repository-`date +%Y%m%d%H%M%S`"
+	repositoryFilename=repository
 	repositorySwapFilename=$repositoryFilename.inventorytmp
 	touch $repositoryFilename
 	touch $repositorySwapFilename
@@ -80,7 +80,7 @@ function repositoryCreate() { # Creates a repository file with the software sour
 		logError repository "Repository can't be created. No sources founded on this server. Check filesystem permissions, or maybe there is no software installed." 1
 	# If 1 or more, continue
 	else
-		logInfo repository "Repository created. Number of sources: $repositorySources."
+		logInfo "repository" "Repository created. Number of sources: $repositorySources."
 	fi
 	
 	## Formatting the output
@@ -147,7 +147,20 @@ function repositoryCreate() { # Creates a repository file with the software sour
 
 }
 
+function collectDB2() { # Module - DB2
+	logInfo "module: DB2" "Collecting DB2 software"
+	
+	grep "db2ls" $repositoryFilename > $repositorySwapFilename
+	
+	while read repositoryLine; do
+		echo "$repositoryLine"
+	done < $repositorySwapFilename
+}
+
 function inventoryCreate() { # Creates the output/inventory file
+	logInfo "inventory" "Creating the output file..."
+
+	# Creating empty files
 	serverHostname=`hostname`
 	#inventoryFile="$serverHostname-`date +%Y%m%d%H%M%S`"
 	inventoryFilename="$serverHostname"
