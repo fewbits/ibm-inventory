@@ -62,7 +62,7 @@ function repositoryCreate() { # Creates a repository file with the software sour
 	# Force new repository
 	> $repositoryFilename
 
-	#find / \( -name "db2ls" -o -name "mqsiprofile" -o -name "InterchangeSystem.log" -o -name "idsversion" -o -name "imcl" -o -name "versioninfo.sh" -o -name "Version.xml"-o -name "de_lsrootiu.sh" -o -name "nco_id" -o -name "FinalInstallInfo.txt" -o -name "versionInfo.sh" -o -name "fmcver" \) > $repositoryFilename.inventorytmp 2>/dev/null
+	find / \( -name "db2ls" -o -name "mqsiprofile" -o -name "InterchangeSystem.log" -o -name "idsversion" -o -name "imcl" -o -name "versioninfo.sh" -o -name "Version.xml"-o -name "de_lsrootiu.sh" -o -name "nco_id" -o -name "FinalInstallInfo.txt" -o -name "versionInfo.sh" -o -name "fmcver" \) > $repositoryFilename.inventorytmp 2>/dev/null
 	
 	# Number of sources found
 	repositorySources=`cat $repositoryFilename.inventorytmp | wc -l`
@@ -147,7 +147,7 @@ function inventoryCreate() { # Creates the output/inventory file
 
 splashScreen
 repositoryCreate
-#inventoryCreate
+inventoryCreate
 
 
 
