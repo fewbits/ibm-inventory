@@ -174,7 +174,7 @@ function inventoryCreate() { # Creates the output/inventory file
 splashScreen
 repositoryCreate
 inventoryCreate
-
+collectDB2
 
 
 
