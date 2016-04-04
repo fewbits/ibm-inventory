@@ -203,7 +203,7 @@ function tempClean() { # Delete temporary files
 
 logInfo "system" "Starting fewbits/ibm-inventory tool"
 repositorySearch
-moduleCollect "DB2" "db2ls" "grep -e '^\/.*..:..:' | awk '{print $2}' | while read version; do echo 'DB2 \$version'; done | sort -n | uniq"
+moduleCollect "DB2" "db2ls" "grep -e '^\/.*..:..:' | awk '{print \$2}' | while read version; do echo 'DB2 \$version'; done | sort -n | uniq"
 #inventoryCreate
 tempClean
 
