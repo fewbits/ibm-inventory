@@ -184,7 +184,7 @@ function moduleCollect() {
 		echo >> $repositoryFile
 		# Write to inventory
 		while read repositoryEntry; do
-			eval "$moduleAction"  >> $repositoryFileTemp
+			eval "$moduleAction"  >> $inventoryFileTemp
 		done < $moduleFileTemp
 	# If 0, skip
 	else
