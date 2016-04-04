@@ -173,7 +173,7 @@ function moduleCollect() {
 	if [ $moduleCount -gt 0 ]; then
 		logInfo "module" "Number of entries: $moduleCount"
 		while read repositoryEntry; do
-			$repositoryEntry | $moduleAction
+			$repositoryEntry 2> /dev/null | $moduleAction
 			#echo "$repositoryEntry | $moduleAction"
 		done < $moduleFilenameTemp
 	# If 0, skip
@@ -204,7 +204,8 @@ function tempClean() { # Delete temporary files
 
 logInfo "system" "Starting fewbits/ibm-inventory tool"
 repositorySearch
-moduleCollect "DB2" "db2ls" "grep -e '^\/.*..:..:' | awk '{print \$2}' | while read version; do echo \"DB2 \$version\"; done | sort -n | uniq"
+#moduleCollect "DB2" "db2ls" "grep -e '^\/.*..:..:' | awk '{print \$2}' | while read version; do echo \"DB2 \$version\"; done | sort -n | uniq"
+moduleCollect "DB2" "db2ls" "grep db2"
 #inventoryCreate
 tempClean
 
