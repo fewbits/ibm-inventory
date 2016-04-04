@@ -170,7 +170,7 @@ function moduleCollect() {
 	moduleCount=`cat $moduleFilenameTemp | wc -l`
 
 	# If 1 or more, continue
-	if [ $moduleCoutn -gt 0 ]; then
+	if [ $moduleCount -gt 0 ]; then
 		logInfo "module" "Number of entries: $moduleCount"
 		while read repositoryEntry; do
 			echo "$repositoryEntry | $moduleAction"
