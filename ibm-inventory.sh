@@ -50,7 +50,7 @@ function logInfo() {
 	#1 module
 	#2 message
 	
-	echo "[`date +"%Y-%m-%d %H:%M:%S"`] [$1] $2" | tee -a $logFilename
+	echo "[`date +"%Y-%m-%d %H:%M:%S"`] [$1:info] $2" | tee -a $logFilename
 }
 
 function logError() {
@@ -58,7 +58,8 @@ function logError() {
 	#2 message
 	#3 error code
 	
-	echo "[`date +"%Y-%m-%d %H:%M:%S"`] [$1] $2" | tee -a $logFilename
+	echo "[`date +"%Y-%m-%d %H:%M:%S"`] [$1:error] $2" | tee -a $logFilename
+	tempClean
 	exit $3
 }
 
@@ -154,7 +155,7 @@ function moduleCollect() {
 	moduleFilter=$2		#2 Module filter for grep command
 	moduleAction=$3		#3 Module action after grep output
 	
-	logInfo "module:$moduleName" "Collecting software"
+	logInfo "module" "Collecting software - $moduleName"
 	
 	grep "$moduleFilter" $repositoryFilename > $moduleFilenameTemp
 	
@@ -175,7 +176,7 @@ function inventoryCreate() { # Creates the output/inventory file
 
 function tempClean() { # Delete temporary files
 	rm -f $repositoryFilenameTemp
-	rf -f $moduleFilenameTemp
+	rm -f $moduleFilenameTemp
 }
 
 ##########
@@ -184,7 +185,7 @@ function tempClean() { # Delete temporary files
 
 logInfo "system" "Starting fewbits/ibm-inventory tool"
 repositorySearch
-moduleCollect "db2" "db2ls"
+moduleCollect "DB2" "db2ls"
 #inventoryCreate
 tempClean
 
