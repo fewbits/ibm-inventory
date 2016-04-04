@@ -41,7 +41,7 @@ repositoryFile="`hostname`.repository"
 repositoryFileTemp="$repositoryFile.tmp"
 moduleFileTemp="module.tmp"
 inventoryFile="`hostname`.inventory"
-inventoryFileTemp="$repositoryFile.tmp"
+inventoryFileTemp="$inventoryFile.tmp"
 #
 #############
 # Functions #
