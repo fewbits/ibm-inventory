@@ -178,12 +178,12 @@ function moduleCollect() {
 	# If 1 or more, continue
 	if [ $moduleCount -gt 0 ]; then
 		logInfo "module" "Number of entries: $moduleCount"
+		# Write to repository
+		echo "[$moduleName]" >> $repositoryFile
+		cat $moduleFileTemp >> $repositoryFile
+		echo >> $repositoryFile
+		# Write to inventory
 		while read repositoryEntry; do
-			# Write to repository
-			echo "[$moduleName]" >> $repositoryFile
-			cat $moduleFileTemp >> $repositoryFile
-			echo >> $repositoryFile
-			# Write to inventory
 			eval "$moduleAction"  >> $repositoryFileTemp
 		done < $moduleFileTemp
 	# If 0, skip
