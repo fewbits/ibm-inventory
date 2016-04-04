@@ -173,7 +173,8 @@ function moduleCollect() {
 	if [ $moduleCount -gt 0 ]; then
 		logInfo "module" "Number of entries: $moduleCount"
 		while read repositoryEntry; do
-			echo "$repositoryEntry | $moduleAction"
+			$repositoryEntry | $moduleAction
+			#echo "$repositoryEntry | $moduleAction"
 		done < $moduleFilenameTemp
 	# If 0, skip
 	else

@@ -4,3 +4,6 @@
 [2016-04-04 13:11:10] [system:info] Starting fewbits/ibm-inventory tool
 [2016-04-04 13:11:10] [repository:info] Searching for IBM Software sources
 [2016-04-04 13:11:15] [repository:error] No sources has been found on this server. Check user and filesystem permissions, or maybe there is no software installed.
+[2016-04-04 13:17:51] [system:info] Starting fewbits/ibm-inventory tool
+[2016-04-04 13:17:51] [repository:info] Searching for IBM Software sources
+[2016-04-04 13:17:56] [repository:error] No sources has been found on this server. Check user and filesystem permissions, or maybe there is no software installed.
