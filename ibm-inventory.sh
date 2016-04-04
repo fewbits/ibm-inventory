@@ -155,7 +155,7 @@ function repositorySearch() { # Create the sources repository
 function moduleCollect() {
 	moduleName=$1		#1 Module name
 	moduleFilter=$2		#2 Module filter for grep command
-	moduleAction=$3		#3 Module action after grep output
+	moduleAction="$3"	#3 Module action after grep output
 
 	# DB2
 	#echo "[DB2]" | tee -a $repositoryFilename
@@ -173,7 +173,7 @@ function moduleCollect() {
 	if [ $moduleCount -gt 0 ]; then
 		logInfo "module" "Number of entries: $moduleCount"
 		while read repositoryEntry; do
-			$repositoryEntry 2> /dev/null | "$moduleAction"
+			echo $moduleAction
 			#echo "$repositoryEntry | $moduleAction"
 		done < $moduleFilenameTemp
 	# If 0, skip
@@ -202,10 +202,18 @@ function tempClean() { # Delete temporary files
 # Script #
 ##########
 
+#logInfo "test" "Testing..."
+#repositoryEntry="/usr/local/bin/db2ls"
+#moduleName="DB2"
+#moduleFilter="db2ls"
+#moduleAction="$repositoryEntry | grep -e '^\/.*..:..:' | awk '{print \$2}' | while read version; do echo \"DB2 \$version\"; done | sort -n | uniq"
+#echo $moduleAction
+#exit
+
 logInfo "system" "Starting fewbits/ibm-inventory tool"
 repositorySearch
-#moduleCollect "DB2" "db2ls" "grep -e '^\/.*..:..:' | awk '{print \$2}' | while read version; do echo \"DB2 \$version\"; done | sort -n | uniq"
-moduleCollect "DB2" "db2ls" "grep -e ^\/.*..:..: | grep -e ^\/.*..:..:"
+moduleCollect "Broker" "mqsiprofile" "grep 'MQSI_VERSION=' | sed 's/MQSI_VERSION=//g' | while read version; do echo \"IBM WebSphere Message Broker \$version\"; done | sort -n | uniq"
+moduleCollect "DB2" "db2ls" "$repositoryEntry 2> /dev/null | grep -e '^\/.*..:..:' | awk '{print \$2}' | while read version; do echo \"DB2 \$version\"; done | sort -n | uniq"
 #inventoryCreate
 tempClean
 
