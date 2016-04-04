@@ -83,7 +83,7 @@ function repositorySearch() { # Create the sources repository
 		logInfo "repository" "Number of sources: $repositoryCount"
 	fi
 
-	sleep 3
+	#sleep 3																	# DESCOMENTAR
 
 	## Formatting repository file
 
