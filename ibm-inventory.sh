@@ -76,7 +76,9 @@ function systemResults() { # Display the results of the tool
 }
 
 function systemClean() { # Delete temporary files
+	logInfo "system" "Deleting temporary files"
 	rm -f $repositoryFileTemp
+	rm -f $inventoryFileTemp
 	rm -f $moduleFileTemp
 }
 
@@ -174,7 +176,7 @@ repositorySearch
 inventoryCreate
 
 ## Modules - Begin ##
-moduleCollect "Broker" "mqsiprofile" "\$repositoryEntry 2> /dev/null | grep 'MQSI_VERSION=' | sed 's/MQSI_VERSION=//g' | while read version; do echo \"IBM WebSphere Message Broker \$version\"; done | sort -n | uniq"
+moduleCollect "Broker" "mqsiprofile" "\cat \$repositoryEntry | grep 'MQSI_VERSION=' | sed 's/MQSI_VERSION=//g' | while read version; do echo \"IBM WebSphere Message Broker \$version\"; done | sort -n | uniq"
 moduleCollect "DB2" "db2ls" "\$repositoryEntry 2> /dev/null | grep -e '^\/.*..:..:' | awk '{print \$2}' | while read version; do echo \"DB2 \$version\"; done | sort -n | uniq"
 ## Modules - End ##
 
