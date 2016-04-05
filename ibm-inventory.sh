@@ -100,7 +100,7 @@ function repositorySearch() { # Create the sources repository
 		logInfo "repository" "Number of sources: $repositoryCount"
 	fi
 
-	#sleep 3																	# DESCOMENTAR
+	sleep 2
 
 	## Formatting repository file
 
@@ -144,6 +144,7 @@ function moduleCollect() {
 	# If 1 or more, continue
 	if [ $moduleCount -gt 0 ]; then
 		logInfo "module" "Number of entries: $moduleCount"
+		sleep 2
 		# Write to repository
 		echo "[$moduleName]" >> $repositoryFile
 		cat $moduleFileTemp >> $repositoryFile
@@ -176,8 +177,9 @@ repositorySearch
 inventoryCreate
 
 ## Modules - Begin ##
-moduleCollect "Broker" "mqsiprofile" "\cat \$repositoryEntry | grep 'MQSI_VERSION=' | sed 's/MQSI_VERSION=//g' | while read version; do echo \"IBM WebSphere Message Broker \$version\"; done | sort -n | uniq"
-moduleCollect "DB2" "db2ls" "\$repositoryEntry 2> /dev/null | grep -e '^\/.*..:..:' | awk '{print \$2}' | while read version; do echo \"DB2 \$version\"; done | sort -n | uniq"
+moduleCollect "IBM DB2" "db2ls" "\$repositoryEntry 2> /dev/null | grep -e '^\/.*..:..:' | awk '{print \$2}' | while read version; do echo \"DB2 \$version\"; done | sort -n | uniq"
+moduleCollect "IBM WebSphere Interchange Server" "InterchangeSystem.log" "cat \$repositoryEntry | grep '\[Version:' | cut -d] -f1 | cut -d: -f2 | while read version; do echo \"IBM WebSphere Interchange Server \$version\"; done | sort -n | uniq"
+moduleCollect "IBM WebSphere Message Broker" "mqsiprofile" "\cat \$repositoryEntry | grep 'MQSI_VERSION=' | sed 's/MQSI_VERSION=//g' | while read version; do echo \"IBM WebSphere Message Broker \$version\"; done | sort -n | uniq"
 ## Modules - End ##
 
 inventoryFormat
