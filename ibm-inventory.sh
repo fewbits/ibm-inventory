@@ -5,17 +5,18 @@
 #############
 #
 # 2016-04-03 <fewbits> Creation of this script
+# 2016-04-05 <fewbits> First useful version - 13 modules added and tested
 #
 ########
 # TODO #
 ########
 #
 # [!] Create the output file based on the hostname and current timestamp
-# [_] Create repository in a local text file
-# [_] Split repository entries by module
-# [_] Execute each module (if it has at least one entry)
-# [_] Sort and exclude repeated entries from the output file
-# [_] Remove temporary files
+# [X] Create repository in a local text file
+# [X] Split repository entries by module
+# [X] Execute each module (if it has at least one entry)
+# [X] Sort and exclude repeated entries from the output file
+# [X] Remove temporary files
 # [_] Create syntax message
 # [_] Create help message
 # [_] Create option to reuse or force a new repository
@@ -155,7 +156,7 @@ function moduleCollect() {
 		# Write to inventory
 		logInfo "module" "Collecting software..."
 		while read repositoryEntry; do
-			echo "$moduleAction"  #>> $inventoryFileTemp
+			eval "$moduleAction"  >> $inventoryFileTemp
 		done < $moduleFileTemp
 		logInfo "module" "Done"
 	# If 0, skip
@@ -169,14 +170,6 @@ function moduleCollect() {
 ##########
 # Script #
 ##########
-
-#logInfo "test" "Testing..."
-#repositoryEntry="/usr/local/bin/db2ls"
-#moduleName="DB2"
-#moduleFilter="db2ls"
-#moduleAction="$repositoryEntry | egrep '^\/.*..:..:' | awk '{print \$2}' | while read version; do echo \"DB2 \$version\"; done | sort -n | uniq"
-#echo $moduleAction
-#exit
 
 systemSplash
 repositorySearch
@@ -194,10 +187,8 @@ moduleCollect "Netcool/Impact" "versioninfo.sh" "\$repositoryEntry 2> /dev/null 
 moduleCollect "Netcool/OMNIbus" "nco_id" "\$repositoryEntry 2> /dev/null | cut -d- -f1 | sort | uniq"
 moduleCollect "Netcool/Reporter" "FinalInstallInfo.txt" "cat \$repositoryEntry | grep 'Netcool/Reporter' | sed 's/^ *//g'"
 moduleCollect "WebSphere" "versionInfo.sh" "\$repositoryEntry 2> /dev/null | egrep '^Name  |^Version  ' | sed 's/^Name  //g' | sed 's/^Version  /|/g' | sed 'N;s/\n|//' | sed 's/^ *//g' | tr -s ' ' | sort | uniq"
-# Checar - Workflow
-moduleCollect "Workflow" "fmcver" "\$repositoryEntry | egrep '^Name:|^Version:|ServicePack:' | sed 's/^Name://g' | sed 's/^Version:/#1/g' | sed 's/^ServicePack:/#2/g' | sed 's/^ *//g' | tr -s ' ' | sed 's/#2 */#2/g' | sed 's/#1/|/g' | sed 's/#2/|/g' | sed 'N;s/\n|//' |sed 'N;s/\n|//' | while read version; do echo \"IBM \$version\"; done | sort -n | uniq"
-# Checar - de_lsrootiu
-moduleCollect "de_lsrootiu" "de_lsrootiu.sh" "\$repositoryEntry 2> /dev/null | egrep 'identityName|version' | grep -v \"<?xml\" | sed 's/^ *//g' | sed 's/<identityName>//g' | sed 's/<\/identityName>/|/g' | sed 's/<version>//g' | sed 's/<\/version>//g' | awk '/\|$/ { printf(\"%s\t\", \$0); next } 1' | tr '|' ' ' | sed 's/\t//g' | sort | uniq"
+moduleCollect "Workflow" "fmcver" "\$repositoryEntry | egrep '^Name:|^Version:|ServicePack:' | sed 's/^Name://g' | sed 's/^Version://g' | sed 's/^ServicePack://g' | sed 's/^ *//g' | tr -d '\n'; echo"
+moduleCollect "de_lsrootiu" "de_lsrootiu.sh" "\$repositoryEntry 2> /dev/null |  egrep 'identityName|version' | grep -v "<?xml" | sed 's/^ *//g' | sed 's/<identityName>//g' | sed 's/<\/identityName>/|/g' | sed 's/<version>//g' | sed 's/<\/version>//g' | sed 'N;s/|\n/ /' | sed 's/\t//g' | sort | uniq"
 ## Modules - End ##
 
 inventoryFormat
