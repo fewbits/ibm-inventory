@@ -188,7 +188,7 @@ moduleCollect "Netcool/OMNIbus" "nco_id" "\$repositoryEntry 2> /dev/null | cut -
 moduleCollect "Netcool/Reporter" "FinalInstallInfo.txt" "cat \$repositoryEntry | grep 'Netcool/Reporter' | sed 's/^ *//g'"
 moduleCollect "WebSphere" "versionInfo.sh" "\$repositoryEntry 2> /dev/null | egrep '^Name  |^Version  ' | sed 's/^Name  //g' | sed 's/^Version  /|/g' | sed 'N;s/\n|//' | sed 's/^ *//g' | tr -s ' ' | sort | uniq"
 moduleCollect "Workflow" "fmcver" "\$repositoryEntry | egrep '^Name:|^Version:|ServicePack:' | sed 's/^Name://g' | sed 's/^Version://g' | sed 's/^ServicePack://g' | sed 's/^ *//g' | tr -d '\n'; echo"
-moduleCollect "de_lsrootiu" "de_lsrootiu.sh" "\$repositoryEntry 2> /dev/null |  egrep 'identityName|version' | grep -v "<?xml" | sed 's/^ *//g' | sed 's/<identityName>//g' | sed 's/<\/identityName>/|/g' | sed 's/<version>//g' | sed 's/<\/version>//g' | sed 'N;s/|\n/ /' | sed 's/\t//g' | sort | uniq"
+moduleCollect "de_lsrootiu" "de_lsrootiu.sh" "\$repositoryEntry 2> /dev/null |  egrep 'identityName|version' | grep -v \"<?xml\" | sed 's/^ *//g' | sed 's/<identityName>//g' | sed 's/<\/identityName>/|/g' | sed 's/<version>//g' | sed 's/<\/version>//g' | sed 'N;s/|\n/ /' | sed 's/\t//g' | sort | uniq"
 ## Modules - End ##
 
 inventoryFormat
