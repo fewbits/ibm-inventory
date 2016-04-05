@@ -10,7 +10,7 @@
 # TODO #
 ########
 #
-# [_] Create the output file based on the hostname and current timestamp
+# [!] Create the output file based on the hostname and current timestamp
 # [_] Create repository in a local text file
 # [_] Split repository entries by module
 # [_] Execute each module (if it has at least one entry)
@@ -65,11 +65,14 @@ function logError() {
 }
 
 function systemSplash() { # Display a Splash Screen
-	logInfo "system" "Starting fewbits/ibm-inventory tool"
+	echo
+	echo "===> Welcome to fewbits/ibm-inventory tool <==="
+	echo
+	logInfo "system" "Starting tool"
 }
 
 function systemResults() { # Display the results of the tool
-	logInfo "system" "Finishing fewbits/ibm-inventory tool"
+	logInfo "system" "Finishing tool"
 	logInfo "system" "Repository file => $repositoryFile"
 	logInfo "system" "Inventory file => $inventoryFile"
 	logInfo "system" "Log file => $logFile"
@@ -87,7 +90,7 @@ function repositorySearch() { # Create the sources repository
 	logInfo "repository" "Searching for IBM Software sources..."
 
 	# Generating temp repository file
-	find / \( -name "db2ls" -o -name "mqsiprofile" -o -name "InterchangeSystem.log" -o -name "idsversion" -o -name "imcl" -o -name "versioninfo.sh" -o -name "Version.xml"-o -name "de_lsrootiu.sh" -o -name "nco_id" -o -name "FinalInstallInfo.txt" -o -name "versionInfo.sh" -o -name "fmcver" \) >> $repositoryFileTemp 2>/dev/null
+	find / \( -name "db2ls" -o -name "mqsiprofile" -o -name "InterchangeSystem.log" -o -name "idsversion" -o -name "imcl" -o -name "versioninfo.sh" -o -name "Version.xml" -o -name "de_lsrootiu.sh" -o -name "dspmqver" -o -name "nco_id" -o -name "FinalInstallInfo.txt" -o -name "versionInfo.sh" -o -name "fmcver" \) >> $repositoryFileTemp 2>/dev/null
 
 	# Checking number of sources found
 	repositoryCount=`cat $repositoryFileTemp | wc -l`
@@ -100,7 +103,7 @@ function repositorySearch() { # Create the sources repository
 		logInfo "repository" "Number of sources: $repositoryCount"
 	fi
 
-	sleep 2
+	sleep 1
 
 	## Formatting repository file
 
@@ -134,7 +137,7 @@ function moduleCollect() {
 	moduleFilter=$2		#2 Module filter for grep command
 	moduleAction="$3"	#3 Module action after grep output
 
-	logInfo "module" "Starting module: $moduleName - Collecting software..."
+	logInfo "module" "Starting module => $moduleName"
 	
 	grep "$moduleFilter" $repositoryFileTemp | sort > $moduleFileTemp
 
@@ -144,18 +147,21 @@ function moduleCollect() {
 	# If 1 or more, continue
 	if [ $moduleCount -gt 0 ]; then
 		logInfo "module" "Number of entries: $moduleCount"
-		sleep 2
+		sleep 1
 		# Write to repository
 		echo "[$moduleName]" >> $repositoryFile
 		cat $moduleFileTemp >> $repositoryFile
 		echo >> $repositoryFile
 		# Write to inventory
+		logInfo "module" "Collecting software..."
 		while read repositoryEntry; do
-			eval "$moduleAction"  >> $inventoryFileTemp
+			echo "$moduleAction"  #>> $inventoryFileTemp
 		done < $moduleFileTemp
+		logInfo "module" "Done"
 	# If 0, skip
 	else
 		logInfo "module" "No entries found. Skipping"
+		sleep 1
 	fi
 	
 }
@@ -168,7 +174,7 @@ function moduleCollect() {
 #repositoryEntry="/usr/local/bin/db2ls"
 #moduleName="DB2"
 #moduleFilter="db2ls"
-#moduleAction="$repositoryEntry | grep -e '^\/.*..:..:' | awk '{print \$2}' | while read version; do echo \"DB2 \$version\"; done | sort -n | uniq"
+#moduleAction="$repositoryEntry | egrep '^\/.*..:..:' | awk '{print \$2}' | while read version; do echo \"DB2 \$version\"; done | sort -n | uniq"
 #echo $moduleAction
 #exit
 
@@ -177,9 +183,21 @@ repositorySearch
 inventoryCreate
 
 ## Modules - Begin ##
-moduleCollect "IBM DB2" "db2ls" "\$repositoryEntry 2> /dev/null | grep -e '^\/.*..:..:' | awk '{print \$2}' | while read version; do echo \"DB2 \$version\"; done | sort -n | uniq"
-moduleCollect "IBM WebSphere Interchange Server" "InterchangeSystem.log" "cat \$repositoryEntry | grep '\[Version:' | cut -d] -f1 | cut -d: -f2 | while read version; do echo \"IBM WebSphere Interchange Server \$version\"; done | sort -n | uniq"
-moduleCollect "IBM WebSphere Message Broker" "mqsiprofile" "\cat \$repositoryEntry | grep 'MQSI_VERSION=' | sed 's/MQSI_VERSION=//g' | while read version; do echo \"IBM WebSphere Message Broker \$version\"; done | sort -n | uniq"
+moduleCollect "Broker" "mqsiprofile" "\cat \$repositoryEntry | grep 'MQSI_VERSION=' | sed 's/MQSI_VERSION=//g' | while read version; do echo \"IBM WebSphere Message Broker \$version\"; done | sort -n | uniq"
+moduleCollect "DB2" "db2ls" "\$repositoryEntry 2> /dev/null | egrep '^\/.*..:..:' | awk '{print \$2}' | while read version; do echo \"DB2 \$version\"; done | sort -n | uniq"
+moduleCollect "DirectoryServer" "idsversion" "\$repositoryEntry 2>&1 > /dev/null | grep 'version:' | sed 's/ version:/ /g' | sort | uniq"
+moduleCollect "ICS" "InterchangeSystem.log" "cat \$repositoryEntry | egrep '\[Version:' | cut -d] -f1 | cut -d: -f2 | while read version; do echo \"IBM WebSphere Interchange Server \$version\"; done | sort -n | uniq"
+moduleCollect "InfoSphere" "Version.xml" "cat \$repositoryEntry | grep 'Product productId' | sed 's/^ *//g' | sed 's/<Product productId=\"//g' | sed 's/\" version=\"/ /g' | sed 's/\"\/>//g' | sort | uniq"
+moduleCollect "InstallationManager" "imcl" "\$repositoryEntry listInstalledPackages -features -long 2> /dev/null | grep \"com.ibm\" | cut -d: -f3,4 | sed 's/^ *//g' | sed 's/ : / /g' | sort | uniq"
+moduleCollect "MQ" "dspmqver" "\$repositoryEntry 2> /dev/null | egrep 'Name:|Version:' | sed 's/^Name://g' | sed 's/^Version:/|/g' | sed 'N;s/\n|//' | sed 's/^ *//g' | tr -s ' ' | sort | uniq"
+moduleCollect "Netcool/Impact" "versioninfo.sh" "\$repositoryEntry 2> /dev/null | grep -i 'impact version' | tr ':' ' ' | tr -s ' ' | sort | uniq"
+moduleCollect "Netcool/OMNIbus" "nco_id" "\$repositoryEntry 2> /dev/null | cut -d- -f1 | sort | uniq"
+moduleCollect "Netcool/Reporter" "FinalInstallInfo.txt" "cat \$repositoryEntry | grep 'Netcool/Reporter' | sed 's/^ *//g'"
+moduleCollect "WebSphere" "versionInfo.sh" "\$repositoryEntry 2> /dev/null | egrep '^Name  |^Version  ' | sed 's/^Name  //g' | sed 's/^Version  /|/g' | sed 'N;s/\n|//' | sed 's/^ *//g' | tr -s ' ' | sort | uniq"
+# Checar - Workflow
+moduleCollect "Workflow" "fmcver" "\$repositoryEntry | egrep '^Name:|^Version:|ServicePack:' | sed 's/^Name://g' | sed 's/^Version:/#1/g' | sed 's/^ServicePack:/#2/g' | sed 's/^ *//g' | tr -s ' ' | sed 's/#2 */#2/g' | sed 's/#1/|/g' | sed 's/#2/|/g' | sed 'N;s/\n|//' |sed 'N;s/\n|//' | while read version; do echo \"IBM \$version\"; done | sort -n | uniq"
+# Checar - de_lsrootiu
+moduleCollect "de_lsrootiu" "de_lsrootiu.sh" "\$repositoryEntry 2> /dev/null | egrep 'identityName|version' | grep -v \"<?xml\" | sed 's/^ *//g' | sed 's/<identityName>//g' | sed 's/<\/identityName>/|/g' | sed 's/<version>//g' | sed 's/<\/version>//g' | awk '/\|$/ { printf(\"%s\t\", \$0); next } 1' | tr '|' ' ' | sed 's/\t//g' | sort | uniq"
 ## Modules - End ##
 
 inventoryFormat
