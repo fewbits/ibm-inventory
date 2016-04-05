@@ -20,6 +20,7 @@
 # [_] Create syntax message
 # [_] Create help message
 # [_] Create option to reuse or force a new repository
+# [_] Create another DB2 module that uses 'db2level' command (db2a,db2b)
 #
 #########
 # FIXME #
@@ -48,14 +49,14 @@ inventoryFileTemp="$inventoryFile.tmp"
 # Functions #
 #############
 
-function logInfo() {
+function logInfo() { # Logs an info message to screen and log file
 	#1 module
 	#2 message
 	
 	echo "[`date +"%Y-%m-%d %H:%M:%S"`] [$1:info] $2" | tee -a $logFile
 }
 
-function logError() {
+function logError() { # Logs an error message to screen and log file
 	#1 module
 	#2 message
 	#3 error code
@@ -65,21 +66,21 @@ function logError() {
 	exit $3
 }
 
-function systemSplash() { # Display a Splash Screen
+function systemSplash() { # Displays a Splash Screen
 	echo
 	echo "===> Welcome to fewbits/ibm-inventory tool <==="
 	echo
 	logInfo "system" "Starting tool"
 }
 
-function systemResults() { # Display the results of the tool
+function systemResults() { # Displays the results of the tool
 	logInfo "system" "Finishing tool"
 	logInfo "system" "Repository file => $repositoryFile"
 	logInfo "system" "Inventory file => $inventoryFile"
 	logInfo "system" "Log file => $logFile"
 }
 
-function systemClean() { # Delete temporary files
+function systemClean() { # Deletes temporary files
 	logInfo "system" "Deleting temporary files"
 	rm -f $repositoryFileTemp
 	rm -f $inventoryFileTemp
@@ -87,7 +88,7 @@ function systemClean() { # Delete temporary files
 }
 
 
-function repositorySearch() { # Create the sources repository
+function repositorySearch() { # Creates the sources repository
 	logInfo "repository" "Searching for IBM Software sources..."
 
 	# Generating temp repository file
@@ -117,7 +118,7 @@ function repositorySearch() { # Create the sources repository
 
 }
 
-function inventoryCreate() { # Create the inventory file
+function inventoryCreate() { # Creates the inventory file
 	logInfo "inventory" "Creating an empty inventory file"
 	> $inventoryFile
 
@@ -127,13 +128,13 @@ function inventoryCreate() { # Create the inventory file
 
 }
 
-function inventoryFormat() { # Format the output of inventory file
+function inventoryFormat() { # Formats the output of inventory file
 	logInfo "inventory" "Formatting the inventory file"
 	
 	cat $inventoryFileTemp | sort | uniq >> $inventoryFile
 }
 
-function moduleCollect() {
+function moduleCollect() { # Generic function that creates a module
 	moduleName=$1		#1 Module name
 	moduleFilter=$2		#2 Module filter for grep command
 	moduleAction="$3"	#3 Module action after grep output
@@ -182,9 +183,9 @@ moduleCollect "DirectoryServer" "idsversion" "\$repositoryEntry 2>&1 > /dev/null
 moduleCollect "ICS" "InterchangeSystem.log" "cat \$repositoryEntry | egrep '\[Version:' | cut -d] -f1 | cut -d: -f2 | while read version; do echo \"IBM WebSphere Interchange Server \$version\"; done | sort -n | uniq"
 moduleCollect "InfoSphere" "Version.xml" "cat \$repositoryEntry | grep 'Product productId' | sed 's/^ *//g' | sed 's/<Product productId=\"//g' | sed 's/\" version=\"/ /g' | sed 's/\"\/>//g' | sort | uniq"
 moduleCollect "InstallationManager" "imcl" "\$repositoryEntry listInstalledPackages -features -long 2> /dev/null | grep \"com.ibm\" | cut -d: -f3,4 | sed 's/^ *//g' | sed 's/ : / /g' | sort | uniq"
-moduleCollect "MQ" "dspmqver" "\$repositoryEntry 2> /dev/null | egrep 'Name:|Version:' | sed 's/^Name://g' | sed 's/^Version:/|/g' | sed 'N;s/\n|//' | sed 's/^ *//g' | tr -s ' ' | sort | uniq"
+moduleCollect "MQ" "dspmqver" "\$repositoryEntry 2> /dev/null | egrep '^Name:|^Version:' | sed 's/^Name://g' | sed 's/^Version:/|/g' | sed 'N;s/\n|//' | sed 's/^ *//g' | tr -s ' ' | sort | uniq"
 moduleCollect "Netcool/Impact" "versioninfo.sh" "\$repositoryEntry 2> /dev/null | grep -i 'impact version' | tr ':' ' ' | tr -s ' ' | sort | uniq"
-moduleCollect "Netcool/OMNIbus" "nco_id" "\$repositoryEntry 2> /dev/null | cut -d- -f1 | sort | uniq"
+moduleCollect "Netcool/OMNIbus" "nco_id" "\$repositoryEntry 2> /dev/null | grep 'OMNIbus' | sed 's/^ *//g' | sort | uniq"
 moduleCollect "Netcool/Reporter" "FinalInstallInfo.txt" "cat \$repositoryEntry | grep 'Netcool/Reporter' | sed 's/^ *//g'"
 moduleCollect "WebSphere" "versionInfo.sh" "\$repositoryEntry 2> /dev/null | egrep '^Name  |^Version  ' | sed 's/^Name  //g' | sed 's/^Version  /|/g' | sed 'N;s/\n|//' | sed 's/^ *//g' | tr -s ' ' | sort | uniq"
 moduleCollect "Workflow" "fmcver" "\$repositoryEntry | egrep '^Name:|^Version:|ServicePack:' | sed 's/^Name://g' | sed 's/^Version://g' | sed 's/^ServicePack://g' | sed 's/^ *//g' | tr -d '\n'; echo"
@@ -194,4 +195,7 @@ moduleCollect "de_lsrootiu" "de_lsrootiu.sh" "\$repositoryEntry 2> /dev/null |  
 inventoryFormat
 systemResults
 systemClean
+
+cat $repositoryFile
+cat $inventoryFile
 
